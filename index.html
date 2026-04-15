@@ -1,0 +1,159 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>NeuroAI OS ULTRA</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+            background: linear-gradient(135deg, #0b0f1a, #1a1f38);
+            color: white;
+        }
+        .card {
+            background: linear-gradient(135deg, #1a1e2f, #2a2e4a);
+        }
+        .button {
+            display: inline-block;
+            background: linear-gradient(135deg, #4f46e5, #6d28d9);
+            color: white;
+            text-transform: uppercase;
+            padding: 0.75rem 1.5rem;
+            border-radius: 8px;
+            transition: transform 0.3s ease-in-out;
+        }
+        .button:hover {
+            transform: translateY(-1px);
+            background: linear-gradient(135deg, #6d28d9, #4f46e5);
+        }
+        .live-status {
+            animation: pulse 1.2s infinite;
+        }
+        @keyframes pulse {
+            0%, 100% {
+                opacity: 1;
+            }
+            50% {
+                opacity: 0.4;
+            }
+        }
+    </style>
+</head>
+<body class="overflow-x-hidden">
+
+    <div class="min-h-screen flex flex-col items-center justify-center">
+        <!-- Header -->
+        <header class="text-center mb-8">
+            <h1 class="text-4xl font-bold mb-2">Neuro<span class="text-indigo-500">AI</span> OS <span class="text-purple-500">ULTRA</span></h1>
+            <p class="text-md text-gray-400">Inteligência Neural com IA Personalizada, Hospitalar e em Tempo Real</p>
+        </header>
+
+        <!-- Real-Time EEG Analysis -->
+        <section class="w-full max-w-6xl mb-12 px-4">
+            <div class="card p-8 rounded-lg shadow-lg">
+                <h2 class="text-xl text-white mb-4">🩺 Análise em Tempo Real</h2>
+                <div id="eegGraph" class="h-64 w-full bg-gray-800 rounded-lg"></div>
+                <div id="status" class="mt-4 text-xl font-medium live-status text-green-500">Status: Normal</div>
+            </div>
+        </section>
+
+        <!-- Patient Management -->
+        <section class="w-full max-w-6xl mb-12 px-4">
+            <div class="card p-8 rounded-lg shadow-lg">
+                <h2 class="text-xl text-white mb-4">🧑‍⚕️ Gerenciamento de Pacientes</h2>
+                <div id="patientList" class="p-4 bg-gray-800 rounded-lg text-gray-400 text-sm overflow-y-auto" style="max-height: 150px;">Nenhum paciente cadastrado.</div>
+                <button onclick="addRandomPatient()" class="button mt-4">Adicionar Paciente Aleatório</button>
+            </div>
+        </section>
+
+        <!-- Risk Prediction -->
+        <section class="w-full max-w-6xl mb-12 px-4">
+            <div class="card p-8 rounded-lg shadow-lg">
+                <h2 class="text-xl text-white mb-4">📊 Previsão de Risco</h2>
+                <p id="riskPrediction" class="text-gray-400 text-sm">Nenhum risco calculado.</p>
+                <button onclick="calculateRisk()" class="button mt-4">Calcular Risco</button>
+            </div>
+        </section>
+
+        <!-- Automatic Reports -->
+        <section class="w-full max-w-6xl mb-12 px-4">
+            <div class="card p-8 rounded-lg shadow-lg">
+                <h2 class="text-xl text-white mb-4">📄 Relatório Automático</h2>
+                <p id="reportStatus" class="text-gray-400 text-sm">Nenhum relatório gerado.</p>
+                <button onclick="generateReport()" class="button mt-4">Gerar Relatório</button>
+            </div>
+        </section>
+    </div>
+
+    <script>
+        // Dummy EEG Simulation
+        const eegData = Array.from({ length: 64 }, (_, i) => Math.sin(i / 5) + Math.random() * 0.5);
+
+        const patients = [];
+        const eegGraph = document.getElementById('eegGraph');
+
+        function drawEEG() {
+            eegGraph.innerHTML = '';
+            const canvas = document.createElement('canvas');
+            canvas.width = eegGraph.offsetWidth;
+            canvas.height = eegGraph.offsetHeight;
+            eegGraph.appendChild(canvas);
+
+            const ctx = canvas.getContext('2d');
+
+            ctx.strokeStyle = "#4f46e5";
+            ctx.lineWidth = 2;
+            ctx.beginPath();
+            eegData.forEach((val, i) => {
+                const x = (i / eegData.length) * canvas.width;
+                const y = canvas.height / 2 + val * (canvas.height / 4);
+                if (i === 0) {
+                    ctx.moveTo(x, y);
+                } else {
+                    ctx.lineTo(x, y);
+                }
+            });
+            ctx.stroke();
+        }
+
+        drawEEG();
+        setInterval(() => {
+            eegData.push(Math.sin(Date.now() / 1000) + Math.random() * 0.5);
+            eegData.shift();
+            drawEEG();
+        }, 100);
+
+        function addRandomPatient() {
+            const newPatient = {
+                id: `P-${patients.length + 1}`,
+                name: `Paciente ${patients.length + 1}`,
+                age: Math.floor(Math.random() * 90) + 10
+            };
+            patients.push(newPatient);
+            updatePatientList();
+        }
+
+        function updatePatientList() {
+            const patientList = document.getElementById('patientList');
+            patientList.innerHTML = '';
+            patients.forEach(p => {
+                const div = document.createElement('div');
+                div.innerHTML = `<strong>${p.name}</strong> (ID: ${p.id}, Idade: ${p.age})`;
+                div.className = 'mb-2';
+                patientList.appendChild(div);
+            });
+        }
+
+        function calculateRisk() {
+            const riskPrediction = document.getElementById('riskPrediction');
+            riskPrediction.innerText = '{"risco": "MÉDIO", "score": 0.62, "motivo": "Anomalias detectadas em exames recentes"}';
+        }
+
+        function generateReport() {
+            const reportStatus = document.getElementById('reportStatus');
+            reportStatus.innerText = 'Relatório Gerado: JSON exportável disponível.';
+        }
+    </script>
+</body>
+</html>
